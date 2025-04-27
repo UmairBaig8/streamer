@@ -1,0 +1,19 @@
+<div class="chat-container">
+    <div class="chat-box" #chatBox>
+      <!-- Display user messages -->
+      <div *ngFor="let message of conversation" [ngClass]="{'user-message': message.sender === 'user', 'bot-message': message.sender === 'bot'}">
+        <div class="typing-container" [innerHTML]="message.text"></div>
+      </div>
+
+      <div class="bot-message" *ngIf="isTyping">
+        <div class="typing-container" [innerHTML]="typedText"></div>
+      </div>
+    </div>
+  
+    <!-- User input field -->
+    <input [(ngModel)]="userInput" (keyup.enter)="sendMessage()" placeholder="Type your query..." aria-label="User input" />
+    <!-- Button for sending message -->
+    <button (click)="sendMessage()" aria-label="Send message">Send</button>
+  
+  </div>
+  

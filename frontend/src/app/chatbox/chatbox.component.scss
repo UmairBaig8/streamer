@@ -1,0 +1,106 @@
+.chat-container {
+    width: 100%;
+    max-width: 600px;
+    margin: 20px auto;
+    border: 1px solid #ccc;
+    border-radius: 10px;
+    padding: 10px;
+    background-color: #f9f9f9;
+}
+
+.chat-box {
+    max-height: 400px;
+    overflow-y: scroll;
+    margin-bottom: 10px;
+}
+
+.message {
+    padding: 8px 12px;
+    margin: 15px 0;
+    border-radius: 10px;
+    /* Additional styles can be added here */
+    padding: 15px;
+    border: 1px solid #ccc;
+    border-radius: 10px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.user-message {
+    background-color: #d1f7d1;
+    text-align: right;
+    margin-left: 50px;
+    /* To create a separation */
+    padding: 5px;
+    border: 1px solid #ccc;
+    border-radius: 10px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    margin: 5px;;
+}
+
+.bot-message {
+    background-color: #e0e0e0;
+    text-align: left;
+    margin-right: 50px;
+    /* To create a separation */
+    padding: 5px;
+    margin: 5px;;
+    border: 1px solid #ccc;
+    border-radius: 10px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+input {
+    width: 80%;
+    padding: 10px;
+    margin-right: 10px;
+    border-radius: 5px;
+}
+
+button {
+    padding: 10px 20px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 5px;
+}
+
+
+.typing-indicator {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 10px;
+}
+
+.dot {
+    width: 8px;
+    height: 8px;
+    margin: 0 5px;
+    border-radius: 50%;
+    background-color: #007bff;
+    animation: bounce 1.4s infinite ease-in-out;
+}
+
+.dot:nth-child(1) {
+    animation-delay: 0s;
+}
+
+.dot:nth-child(2) {
+    animation-delay: 0.2s;
+}
+
+.dot:nth-child(3) {
+    animation-delay: 0.4s;
+}
+
+@keyframes bounce {
+
+    0%,
+    100% {
+        transform: translateY(0);
+    }
+
+    50% {
+        transform: translateY(-10px);
+    }
+}
