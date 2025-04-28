@@ -23,8 +23,11 @@
     RUN mkdir -p /app/templates && mv /app/static/index.html /app/templates/index.html
     
     # ⚡ Rewrite index.html to fix static paths
-    RUN sed -i 's|href="\([^"]*\)|href="/static/\1|g' /app/templates/index.html && \
-        sed -i 's|src="\([^"]*\)|src="/static/\1|g' /app/templates/index.html
+    #RUN sed -i 's|href="\([^"]*\)|href="/static/\1|g' /app/templates/index.html && \
+    #    sed -i 's|src="\([^"]*\)|src="/static/\1|g' /app/templates/index.html
+
+    RUN sed -i -E '/<base href=/! s|href="([^"]+)"|href="/static/\1"|g' /app/templates/index.html && \
+        sed -i -E '/<base href=/! s|src="([^"]+)"|src="/static/\1"|g' /app/templates/index.html
     
     # Expose port
     EXPOSE 8000
