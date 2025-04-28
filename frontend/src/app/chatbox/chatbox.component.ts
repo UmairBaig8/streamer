@@ -48,7 +48,7 @@ export class ChatboxComponent implements AfterViewChecked {
     }
   
     // Open a new EventSource connection to stream the bot's response
-    const chatUrl = `http://localhost:8000/chat?message=${encodeURIComponent(message)}`;
+    const chatUrl = `/chat?message=${encodeURIComponent(message)}`;
     this.eventSource = new EventSource(chatUrl);
     this.currentBotResponse = ""; // Reset the current bot response before starting to receive new chunks
     this.eventSource.onopen = () => {
