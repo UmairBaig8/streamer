@@ -1,6 +1,8 @@
 import { CommonModule } from '@angular/common';
 import { Component, ChangeDetectorRef, ViewChild, ElementRef, NgZone, AfterViewChecked } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { WebsocketService } from '../services/websocket.service';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-chatbot',
@@ -22,7 +24,28 @@ export class ChatboxComponent implements AfterViewChecked {
   private fullText: string[] = [];  // Queue of accumulated text responses
   isTyping: boolean = false;  // Flag to check if typing is ongoing
 
-  constructor(private ngZone: NgZone, private cdr: ChangeDetectorRef) {}
+  private socketSubscription!: Subscription;
+
+  constructor(private ngZone: NgZone, private cdr: ChangeDetectorRef, private websocketService: WebsocketService) {}
+
+  ngOnInit() {
+    const socket = this.websocketService.connect();
+    this.socketSubscription = socket.subscribe({
+      next: (msg) => {
+        // Append the new message to the queue
+        this.fullText.push(msg);
+        console.log('Received message from server:', msg);
+      
+        // Start typing the next message if it's not already typing
+        if (!this.isTyping) {
+          this.startTypingNextMessage();
+        }
+        setTimeout(() => this.scrollToBottom(), 0);
+      },
+      error: (err) => console.error(err),
+      complete: () => console.log('Connection closed')
+    });
+  }
 
   sendMessage(): void {
     console.log('Sending message:', this.userInput);
@@ -32,7 +55,9 @@ export class ChatboxComponent implements AfterViewChecked {
       // Show typing indicator while the bot is processing
       this.isBotTyping = true;
       // Get bot response (simulate for now or call an API)
-      this.fetchBotResponse(this.userInput);
+      //this.fetchBotResponse(this.userInput);
+
+      this.websocketService.connect().next(this.userInput);
 
       // Clear the input field after sending the message
       this.userInput = '';
@@ -48,7 +73,7 @@ export class ChatboxComponent implements AfterViewChecked {
     }
   
     // Open a new EventSource connection to stream the bot's response
-    const chatUrl = `/chat?message=${encodeURIComponent(message)}`;
+    const chatUrl = `http://localhost:8000/chat?message=${encodeURIComponent(message)}`;
     this.eventSource = new EventSource(chatUrl);
     this.currentBotResponse = ""; // Reset the current bot response before starting to receive new chunks
     this.eventSource.onopen = () => {
@@ -115,10 +140,16 @@ export class ChatboxComponent implements AfterViewChecked {
     const typingSpeed = 10;  // Speed of typing effect (in milliseconds)
 
     const intervalId = setInterval(() => {
-      this.typedText += messageToType.charAt(index); // Add one character at a time
-      this.cdr.detectChanges();  // Trigger UI updates
-      this.scrollToBottom();
-      index++;
+      if (messageToType.trim() === '--END') {
+        console.log('End of message detected');
+        this.isTyping = false;
+        this.isBotTyping = false;  // Stop the typing indicator
+        this.conversation.push({ sender: 'bot', text: this.typedText });
+        this.typedText = '';
+        this.cdr.detectChanges();
+        clearInterval(intervalId);
+        return;
+      }
 
       if (index === messageToType.length) {
         clearInterval(intervalId);  // Stop when the whole message is typed
@@ -126,15 +157,23 @@ export class ChatboxComponent implements AfterViewChecked {
         this.startTypingNextMessage();  // Start typing the next message
       }
 
-      if (messageToType.match(/^-END$/)) {
-        this.isTyping = false;  // Typing is complete
-        this.conversation.push({ sender: 'bot', text: this.typedText }); // Add the final response to the conversation
-        this.typedText = '';  // Reset the typed text
-        this.cdr.detectChanges();  // Trigger UI updates  
-        clearInterval(intervalId);
-      }
+      this.typedText += messageToType.charAt(index); // Add one character at a time
+      this.cdr.detectChanges();  // Trigger UI updates
+      this.scrollToBottom();
+      index++;
 
     }, typingSpeed);
+  }
+
+
+  stopStreaming(): void {
+    console.log('Streaming stopped manually');
+    this.websocketService.send('stop');
+    this.websocketService.disconnect(); // you should define this to close the socket
+    this.isTyping = false;
+    this.isBotTyping = false;
+    this.typedText = '';
+    this.fullText = [];
   }
 
   // Auto-scroll to the bottom after each update

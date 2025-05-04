@@ -7,7 +7,11 @@
 /bazel-out
 
 # Node
-/node_modules
+/frontend/node_modules
+/frontend/package-lock.json
+/frontend/yarn-error.log
+/frontend/yarn.lock
+/frontend/.angular
 npm-debug.log
 yarn-error.log
 
@@ -40,3 +44,5 @@ testem.log
 # System files
 .DS_Store
 Thumbs.db
+
+__pycache__
